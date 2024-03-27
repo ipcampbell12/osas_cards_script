@@ -14,6 +14,7 @@ function initMenu(){
     .addItem("Merge IEP Info","addIeps")
     .addItem("Merge 504 Info","add504s")
     .addItem("Download Sheet","dlFile")
+    .addItem("Open AbleBits","openSideBar")
     .addToUi()
 
 }
