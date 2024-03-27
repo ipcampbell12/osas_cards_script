@@ -11,3 +11,31 @@ function createSpreadsheetOpenTrigger() {
         .onOpen()
         .create();
 }
+
+function serverSideGetSheetNames(){
+    const ss = getSs();
+    const sheets = ss.getSheets();
+    const sheetNames = sheets.map(sheet => sheet.getSheetName())
+    Logger.log(sheetNames);
+    return sheetNames;
+}
+
+function serverSideGetHeaders(sheetName,id){
+    const sheet = getSheet(sheetName);
+    const headerRange = sheet.getRange(1,1,1,sheet.getLastColumn());
+    const headerVals = headerRange.getValues();
+    Logger.log(headerVals);
+    const returnObj = {
+        headers: headerVals,
+        id: id
+    }
+    return returnObj;
+}
+
+function checkIt(){
+    getColsFromSheet("Elementary")
+}
+
+function include(filename) {
+    return HtmlService.createHtmlOutputFromFile(filename).getContent()
+  }

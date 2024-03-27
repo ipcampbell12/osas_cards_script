@@ -14,62 +14,53 @@
             <br>
             <div class="form-control ms-1 me-1">
                 <h6 class="text-center">Select Sheets to Merge</h6>
-                <div class="text-center">
-                    <button onclick="getCheckedVals()" type="button" class="btn btn-primary ms-3 me-3"
-                        id="query-btn">Copy
-                        Checked Rows</button>
-                    <br>
-                    <div id="checked-spinner-placeholder"></div>
-                    <div id="checked-alert-placeholder"></div>
-                </div>
-                <br>
-                <div class="text-center">
-                    <button onclick="getUnCheckedVals()" type="button" class="btn btn-secondary ms-3 me-3"
-                        id="query-btn">Copy
-                        UnChecked Rows</button>
-                    <br>
-                    <div id="unchecked-spinner-placeholder"></div>
-                    <div id="unchecked-alert-placeholder"></div>
-                </div>
-                <br>
+                <label for="html">Merge FROM</label>
+                    <select class="form-select" aria-label="Default select example" id="src-sheet-sel">
+                    
+                    
+                    </select>
+                  <br>
+                <label for="html">Merge TO</label>
+                    <select class="form-select" aria-label="Default select example" id="dest-sheet-sel">
+                   
+                    
+                    </select>
             </div>
-            <br>
             <div class="form-control ms-1 me-1">
                 <h6 class="text-center">Select Columns to Merge On</h6>
-                <div class="text-center">
-                    <button onclick="hideCheckedRows()" type="button" class="btn btn-warning ms-3 me-3 " id="query-btn">
-                        Hide Checked Rows</button>
-                    <br>
-                    <div id="hidden-spinner-placeholder"></div>
-                    <div id="hidden-alert-placeholder"></div>
-                </div>
+                <label for="html">FROM Sheet Column</label>
+                    <select class="form-select" aria-label="Default select example" id="src-col-sel">
+                    
+                    
+                    </select>
                 <br>
-                <div class="text-center">
-                    <button onclick="unHideCheckedRows()" type="button" class="btn btn-success ms-3 me-3 "
-                        id="query-btn">
-                        Unhide Checked Rows</button>
-                    <br>
-                    <div id="unhidden-spinner-placeholder"></div>
-                    <div id="unhidden-alert-placeholder"></div>
-                </div>
-                <br>
+                <label for="html">TO Sheet Column</label>
+                    <select class="form-select" aria-label="Default select example" id="dest-col-sel">
+                
+                    
+                    </select>
+            </div>
+            <div class="form-control">
+                <h6 class="text-center">Select Columns to Add</h6>
+                <ul id="cols-to-pick">
 
+                </ul>
+                
+                <br>
             </div>
         </div>
         <br>
         <div class="text-center ms-1 me-1 form-control">
-            <h6 class="text-center mt-2">Select Columns to Add</h6>
-            <br>
+            <h6 class="text-center mt-1">Merge Sheets </h6>
             <div class="text-center">
-                <button onclick="copyFields()" type="button" class="btn btn-warning ms-3 me-3" id="fields-btn"
-                    style="text-align:center;">ELPA Screener Fields</button>
+                <button type="button" class="btn btn-warning ms-3 me-3" id="merge-sheets"
+                    style="text-align:center;">Merge Sheets</button>
                 <br>
                 <div id="fields-spinner-placeholder"></div>
                 <div id="liveAlertPlaceholder-fields"></div>
-                <br>
             </div>
         </div>
-        <br>
+
         <!-- <button onclick="google.script.run.hideExtraSheets()" type="button" class="btn btn-warning ms-5" id="fields-btn"
             style="text-align:center;">Hide Extra Sheets</button> -->
 
@@ -77,76 +68,165 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
         crossorigin="anonymous"></script>
-</body>
-<script>
-    
+        <script>
+            const showOptions = (opt,idx) => `
+                <option value="${opt}">${opt}</option>
+             `;
 
-    function activateSheet() {
-        const sheet = document.getElementById('sheet-select').value;
-        google.script.run.ssActivateSheet(sheet)
-    }
-
-    function copyFields() {
-        const el = document.createElement('textarea');
-        const str = document.getElementById('fields-to-copy').dataset.fields;
-        el.value = str;
-        console.log(el.value)
-        navigator.clipboard.writeText(el.value)
-        addAlert("liveAlertPlaceholder-fields", "success", "Export fields copied to clipboard")
-    }
-
-    function copyToClipboard(values) {
-        const el = document.createElement('textarea');
-        el.value = values;
-        console.log("copying to clipboard")
-        console.log(el.value)
-
-        navigator.clipboard.writeText(el.value)
-        addAlert("copied-alert-placeholder", "success", "Student numbers copied to clipboard")
-    }
-
-
-    function addAlert(id, type, statement) {
-        removeSpinner()
-        const placeholder = document.getElementById(id)
-        const wrapper = document.createElement('div')
-        wrapper.innerHTML = [
-            `
-      <div class="alert alert-${type} alert-dismissible" role="alert" id="alert">`,
-            `   <div>${statement}</div>`,
-            '   <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>',
-            '</div>'
-        ].join('')
-        placeholder.append(wrapper)
-        setTimeout(() => {
-            document.getElementById("alert").remove();
-        }, 3000)
-    }
-
-    function addSpinner(id = "family") {
-        console.log("The spinner function has run")
-        document.getElementById(id).innerHTML =
-            ` <div id = "loading" class= "loading pt-40">
-    <div class="d-flex justify-content-center">
-      <div>
-
-         <div class="spinner-border" role="status" style="width: 4rem; height: 4rem;">
-          <span class="visually-hidden">Loading...</span>
-         </div>
-         <div>Loading... </div>
-      </div>
-    </div>
+            
+            const columnNames = (colName,colNum) => `
+                    <div>
+                        <input class="form-check-input" type="checkbox" value="" id="${colNum+1}">
+                        <label class="form-check-label" for="ian">
+                        ${colName}
                     </div>
-      `;
+            `
+       
+           function renderData(data, htmlTemp) {
+               return data.map((row,idx) => htmlTemp(row,idx)).join("")
+           }
+           
+           function getElements(){
+                const ids = ["src-sheet-sel","dest-sheet-sel","src-col-sel","dest-col-sel","cols-to-pick"];
+                const elements = ids.map(id => document.getElementById(id));
+                return elements;
+           }
 
-    }
+           function displayColumns(data){
+                const elements = getElements()
+                const headers = data.headers;
+                const id = data.id;
 
-    function removeSpinner() {
-        document.getElementById('loading').remove()
-    }
+                let sel;
+                if(id.includes("src")) sel = elements[2];
+                if(id.includes("dest")) {
+                    sel = elements[3]
+                    const colsToPick = elements[4]
+                    colsToPick.innerHTML = renderData(headers[0],columnNames)
+                }
+                sel.innerHTML = renderData(headers[0],showOptions)
+           }
+
+           function displaySheets(data){
+               const elements = getElements();
+               elements[0].innerHTML = renderData(data,showOptions)
+               elements[1].innerHTML = renderData(data,showOptions)
+           }
+       
+           function clientSideGetSheetNames(){
+              google.script.run.withSuccessHandler(displaySheets).serverSideGetSheetNames()
+           }
+
+           function clientSideGetColumnNames(event){
+              const sheet = event.target.value;
+              const id = event.target.id;
+              google.script.run.withSuccessHandler(displayColumns).serverSideGetHeaders(sheet,id)
+           }
+           
+
+           function getAllVals(){
+                const keys = getElements();
+                const ids = keys.map(key => key.id)
+                const values = keys.map(element => element.value);
+                console.log(values)
+                const mergeObj = {}
+                ids.forEach((key,index) => {
+                    mergeObj[key] = values[index]
+                })
+                console.log(mergeObj)
+            
+           }
+       
+           // EVENT LISTENERS
+           // this is an alternative way to approach the evenListeners and it seems to work
+           document.addEventListener('DOMContentLoaded',function(){     
+                clientSideGetSheetNames()
+            }
+           )
+
+           document.getElementById("src-sheet-sel").addEventListener("change",clientSideGetColumnNames)
+           document.getElementById("dest-sheet-sel").addEventListener("change",clientSideGetColumnNames)
+           document.getElementById("merge-sheets").addEventListener("click",getAllVals)
 
 
-</script>
+       
+       
+       
+       
+       
+       
+       
+       
+       
+       
+           //UTILITIY FUNCTIONS
+       
+           function copyFields() {
+               const el = document.createElement('textarea');
+               const str = document.getElementById('fields-to-copy').dataset.fields;
+               el.value = str;
+               console.log(el.value)
+               navigator.clipboard.writeText(el.value)
+               addAlert("liveAlertPlaceholder-fields", "success", "Export fields copied to clipboard")
+           }
+       
+           function copyToClipboard(values) {
+               const el = document.createElement('textarea');
+               el.value = values;
+               console.log("copying to clipboard")
+               console.log(el.value)
+       
+               navigator.clipboard.writeText(el.value)
+               addAlert("copied-alert-placeholder", "success", "Student numbers copied to clipboard")
+           }
+       
+       
+           function addAlert(id, type, statement) {
+               removeSpinner()
+               const placeholder = document.getElementById(id)
+               const wrapper = document.createElement('div')
+               wrapper.innerHTML = [
+                   `
+             <div class="alert alert-${type} alert-dismissible" role="alert" id="alert">`,
+                   `   <div>${statement}</div>`,
+                   '   <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>',
+                   '</div>'
+               ].join('')
+               placeholder.append(wrapper)
+               setTimeout(() => {
+                   document.getElementById("alert").remove();
+               }, 3000)
+           }
+       
+           function addSpinner(id = "family") {
+               console.log("The spinner function has run")
+               document.getElementById(id).innerHTML =
+                   ` <div id = "loading" class= "loading pt-40">
+           <div class="d-flex justify-content-center">
+             <div>
+       
+                <div class="spinner-border" role="status" style="width: 4rem; height: 4rem;">
+                 <span class="visually-hidden">Loading...</span>
+                </div>
+                <div>Loading... </div>
+             </div>
+           </div>
+                           </div>
+             `;
+       
+           }
+       
+           function removeSpinner() {
+               document.getElementById('loading').remove()
+           }
+
+           function getValue(id) {
+                return document.getElementById(id).value;
+            }
+
+       
+       </script>  
 </body>
+
 
 </html>
