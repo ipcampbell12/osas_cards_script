@@ -70,7 +70,7 @@
         crossorigin="anonymous"></script>
         <script>
             const showOptions = (opt,idx) => `
-                <option value="${[opt,idx]}">${opt}</option>
+                <option value="${opt}-${idx}">${opt}</option>
              `;
 
             
@@ -121,7 +121,10 @@
            }
 
            function clientSideGetColumnNames(event){
-              const sheet = event.target.value;
+              const value = event.target.value;
+              //console.log(`The values is ${value}`)
+              const sheet = value.split("-")[0];
+              //console.log(`The sheet being passed is ${sheet}`)
               const id = event.target.id;
               google.script.run.withSuccessHandler(displayColumns).serverSideGetHeaders(sheet,id)
            }
