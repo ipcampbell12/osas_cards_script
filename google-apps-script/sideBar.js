@@ -32,9 +32,7 @@ function serverSideGetHeaders(sheetName,id){
     return returnObj;
 }
 
-function checkIt(){
-    getColsFromSheet("Elementary")
-}
+
 
 function include(filename) {
     return HtmlService.createHtmlOutputFromFile(filename).getContent()

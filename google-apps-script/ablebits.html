@@ -70,13 +70,13 @@
         crossorigin="anonymous"></script>
         <script>
             const showOptions = (opt,idx) => `
-                <option value="${opt}">${opt}</option>
+                <option value="${[opt,idx]}">${opt}</option>
              `;
 
             
             const columnNames = (colName,colNum) => `
                     <div>
-                        <input class="form-check-input" type="checkbox" value="" id="${colNum+1}">
+                        <input class="form-check-input" type="checkbox" value="" id="col-${colNum+1}">
                         <label class="form-check-label" for="ian">
                         ${colName}
                     </div>
@@ -94,17 +94,20 @@
 
            function displayColumns(data){
                 const elements = getElements()
-                const headers = data.headers;
+                const headers = data.headers[0];
                 const id = data.id;
 
                 let sel;
-                if(id.includes("src")) sel = elements[2];
+                if(id.includes("src")) {
+                    sel = elements[2];
+                    const colsToPick = elements[4]
+                    colsToPick.innerHTML = renderData(headers,columnNames)
+                }
                 if(id.includes("dest")) {
                     sel = elements[3]
-                    const colsToPick = elements[4]
-                    colsToPick.innerHTML = renderData(headers[0],columnNames)
+        
                 }
-                sel.innerHTML = renderData(headers[0],showOptions)
+                sel.innerHTML = renderData(headers,showOptions)
            }
 
            function displaySheets(data){
@@ -125,16 +128,24 @@
            
 
            function getAllVals(){
+                
+                const checkboxes = Array.from(document.querySelectorAll('input[type="checkbox"]'));
+                const checkedBoxes = checkboxes.filter(checkbox => checkbox.checked === true).map(item => Number(item.id.split("-")[1]));
+                console.log(checkedBoxes);
+                
                 const keys = getElements();
                 const ids = keys.map(key => key.id)
                 const values = keys.map(element => element.value);
                 console.log(values)
                 const mergeObj = {}
+
                 ids.forEach((key,index) => {
                     mergeObj[key] = values[index]
                 })
+
+                mergeObj["cols-to-pick"]=checkedBoxes;
                 console.log(mergeObj)
-            
+                            
            }
        
            // EVENT LISTENERS
